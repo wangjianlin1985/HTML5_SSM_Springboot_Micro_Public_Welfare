@@ -1,0 +1,49 @@
+﻿<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace命名空间，为了对sql语句进行隔离，方便管理，mapper开发dao方式，使用namespace有特殊作用  
+mapper代理开发时将namespace指定为mapper接口的全限定名  
+ -->
+<mapper namespace="com.chengxusheji.mapper.DonationMapper"> 
+<!--在mapper.xml文件中配置很多的sql语句，执行每个sql语句时，封装为MappedStatement对象 
+mapper.xml以statement为单位管理sql语句  
+ -->
+	<!-- 添加捐款记录 -->
+	<insert id="addDonation" parameterType="donation">
+		insert into t_donation(userObj,donationMoney,dunationTime,dunationMemo,sheHeState) values 
+		(#{userObj.user_name},#{donationMoney},#{dunationTime},#{dunationMemo},#{sheHeState})
+	</insert>
+
+	<!-- 按照查询条件分页查询捐款记录 -->
+	<select id="queryDonation" resultMap="donationMap" >
+		select t_donation.* from t_donation,t_userInfo ${where} and t_donation.userObj = t_userInfo.user_name limit #{startIndex},#{pageSize}
+	</select>
+	<resultMap id="donationMap" type="donation">
+        <id property="donationId" column="donationId" />
+        <association property="userObj" column="userObj" select="com.chengxusheji.mapper.UserInfoMapper.getUserInfo" />
+    </resultMap>
+
+    <!-- 按照查询条件查询所有捐款记录 -->
+	<select id="queryDonationList" resultMap="donationMap" >
+		select t_donation.* from t_donation,t_userInfo ${where} and t_donation.userObj = t_userInfo.user_name
+	</select>
+
+    <!-- 按照查询条件的捐款记录数 -->
+	<select id="queryDonationCount" resultType="int">
+		select count(*) from t_donation,t_userInfo ${where} and t_donation.userObj = t_userInfo.user_name
+	</select>
+
+	<!-- 根据主键查询某个捐款记录 -->
+	<select id="getDonation" parameterType="int" resultMap="donationMap">
+		select * from t_donation where t_donation.donationId = #{donationId}
+	</select>
+
+	<!-- 更新捐款记录 -->
+	<update id="updateDonation" parameterType="donation">
+		update t_donation set userObj=#{userObj.user_name},donationMoney=#{donationMoney},dunationTime=#{dunationTime},dunationMemo=#{dunationMemo},sheHeState=#{sheHeState} where donationId = #{donationId}
+	</update>
+
+	<!-- 删除捐款记录 -->
+	<delete id="deleteDonation" parameterType="int">
+		delete from t_donation where donationId=#{donationId}
+	</delete>
+
+</mapper>

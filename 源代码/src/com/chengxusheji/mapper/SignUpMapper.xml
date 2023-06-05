@@ -1,0 +1,50 @@
+﻿<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace命名空间，为了对sql语句进行隔离，方便管理，mapper开发dao方式，使用namespace有特殊作用  
+mapper代理开发时将namespace指定为mapper接口的全限定名  
+ -->
+<mapper namespace="com.chengxusheji.mapper.SignUpMapper"> 
+<!--在mapper.xml文件中配置很多的sql语句，执行每个sql语句时，封装为MappedStatement对象 
+mapper.xml以statement为单位管理sql语句  
+ -->
+	<!-- 添加活动报名记录 -->
+	<insert id="addSignUp" parameterType="signUp">
+		insert into t_signUp(activityObj,userObj,signUpVow,signUpTime) values 
+		(#{activityObj.activityId},#{userObj.user_name},#{signUpVow},#{signUpTime})
+	</insert>
+
+	<!-- 按照查询条件分页查询活动报名记录 -->
+	<select id="querySignUp" resultMap="signUpMap" >
+		select t_signUp.* from t_signUp,t_activityInfo,t_userInfo ${where} and t_signUp.activityObj = t_activityInfo.activityId and t_signUp.userObj = t_userInfo.user_name limit #{startIndex},#{pageSize}
+	</select>
+	<resultMap id="signUpMap" type="signUp">
+        <id property="signId" column="signId" />
+        <association property="activityObj" column="activityObj" select="com.chengxusheji.mapper.ActivityInfoMapper.getActivityInfo" />
+        <association property="userObj" column="userObj" select="com.chengxusheji.mapper.UserInfoMapper.getUserInfo" />
+    </resultMap>
+
+    <!-- 按照查询条件查询所有活动报名记录 -->
+	<select id="querySignUpList" resultMap="signUpMap" >
+		select t_signUp.* from t_signUp,t_activityInfo,t_userInfo ${where} and t_signUp.activityObj = t_activityInfo.activityId and t_signUp.userObj = t_userInfo.user_name
+	</select>
+
+    <!-- 按照查询条件的活动报名记录数 -->
+	<select id="querySignUpCount" resultType="int">
+		select count(*) from t_signUp,t_activityInfo,t_userInfo ${where} and t_signUp.activityObj = t_activityInfo.activityId and t_signUp.userObj = t_userInfo.user_name
+	</select>
+
+	<!-- 根据主键查询某个活动报名记录 -->
+	<select id="getSignUp" parameterType="int" resultMap="signUpMap">
+		select * from t_signUp where t_signUp.signId = #{signId}
+	</select>
+
+	<!-- 更新活动报名记录 -->
+	<update id="updateSignUp" parameterType="signUp">
+		update t_signUp set activityObj=#{activityObj.activityId},userObj=#{userObj.user_name},signUpVow=#{signUpVow},signUpTime=#{signUpTime} where signId = #{signId}
+	</update>
+
+	<!-- 删除活动报名记录 -->
+	<delete id="deleteSignUp" parameterType="int">
+		delete from t_signUp where signId=#{signId}
+	</delete>
+
+</mapper>

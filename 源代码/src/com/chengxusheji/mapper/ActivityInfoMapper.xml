@@ -1,0 +1,49 @@
+﻿<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace命名空间，为了对sql语句进行隔离，方便管理，mapper开发dao方式，使用namespace有特殊作用  
+mapper代理开发时将namespace指定为mapper接口的全限定名  
+ -->
+<mapper namespace="com.chengxusheji.mapper.ActivityInfoMapper"> 
+<!--在mapper.xml文件中配置很多的sql语句，执行每个sql语句时，封装为MappedStatement对象 
+mapper.xml以statement为单位管理sql语句  
+ -->
+	<!-- 添加公益活动记录 -->
+	<insert id="addActivityInfo" parameterType="activityInfo">
+		insert into t_activityInfo(typeObj,title,activityPhoto,content,activityTime) values 
+		(#{typeObj.typeId},#{title},#{activityPhoto},#{content},#{activityTime})
+	</insert>
+
+	<!-- 按照查询条件分页查询公益活动记录 -->
+	<select id="queryActivityInfo" resultMap="activityInfoMap" >
+		select t_activityInfo.* from t_activityInfo,t_activityType ${where} and t_activityInfo.typeObj = t_activityType.typeId limit #{startIndex},#{pageSize}
+	</select>
+	<resultMap id="activityInfoMap" type="activityInfo">
+        <id property="activityId" column="activityId" />
+        <association property="typeObj" column="typeObj" select="com.chengxusheji.mapper.ActivityTypeMapper.getActivityType" />
+    </resultMap>
+
+    <!-- 按照查询条件查询所有公益活动记录 -->
+	<select id="queryActivityInfoList" resultMap="activityInfoMap" >
+		select t_activityInfo.* from t_activityInfo,t_activityType ${where} and t_activityInfo.typeObj = t_activityType.typeId
+	</select>
+
+    <!-- 按照查询条件的公益活动记录数 -->
+	<select id="queryActivityInfoCount" resultType="int">
+		select count(*) from t_activityInfo,t_activityType ${where} and t_activityInfo.typeObj = t_activityType.typeId
+	</select>
+
+	<!-- 根据主键查询某个公益活动记录 -->
+	<select id="getActivityInfo" parameterType="int" resultMap="activityInfoMap">
+		select * from t_activityInfo where t_activityInfo.activityId = #{activityId}
+	</select>
+
+	<!-- 更新公益活动记录 -->
+	<update id="updateActivityInfo" parameterType="activityInfo">
+		update t_activityInfo set typeObj=#{typeObj.typeId},title=#{title},activityPhoto=#{activityPhoto},content=#{content},activityTime=#{activityTime} where activityId = #{activityId}
+	</update>
+
+	<!-- 删除公益活动记录 -->
+	<delete id="deleteActivityInfo" parameterType="int">
+		delete from t_activityInfo where activityId=#{activityId}
+	</delete>
+
+</mapper>
